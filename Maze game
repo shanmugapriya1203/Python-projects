@@ -1,0 +1,34 @@
+def maze_game():
+    print("Welcome to the Maze Escape Game!")
+    print("You're stuck in a maze. Make the right choices to escape!")
+
+    # Start the game
+    print("\nYou see two paths: Left or Right.")
+    choice1 = input("Which way do you want to go? (left/right): ").lower()
+    # Lower or LOWER
+
+    if choice1 == "left":
+        print("\nYou walk into a dark tunnel. You see a ladder going up.")
+        choice2 = input("Do you climb the ladder or keep walking? (climb/walk): ").lower()
+
+        if choice2 == "climb":
+            print("\nYou climb the ladder and find a trapdoor leading outside!")
+            print("Congratulations! You escaped the maze!")
+        else:
+            print("\nYou keep walking and fall into a pit. Game over!")
+
+    elif choice1 == "right":
+        print("\nYou find a locked door with a keypad.")
+        code = input("Enter a 3-digit code to unlock the door (Hint: 123): ")
+
+        if code == "123":
+            print("\nThe door unlocks, and you step outside!")
+            print("Congratulations! You escaped the maze!")
+        else:
+            print("\nThe code is incorrect. You're stuck in the maze. Game over!")
+    else:
+        print("\nInvalid choice! You got lost in the maze. Game over!")
+
+
+# Run the game
+maze_game()
