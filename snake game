@@ -1,0 +1,69 @@
+import pygame
+import random
+
+from pygame.time import Clock
+
+pygame.init()
+WIDTH,HEIGHT=500,500
+WINDOW=pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption("Snake Game")
+
+white=(255,255,255)
+green=(0,255,0)
+red=(255,0,0)
+
+snake_x=250
+snake_y=250
+snake_size=20
+
+food_x=random.randint(0,WIDTH-snake_size)
+food_y=random.randint(0,HEIGHT-snake_size)
+food_size=20
+
+velocity_x=0
+velocity_y=0
+speed=20
+
+running=True
+clock=pygame.time.Clock()
+while running:
+    WINDOW.fill(white)
+    pygame.draw.rect(WINDOW,green,(snake_x,snake_y,20,20))
+    pygame.draw.rect(WINDOW,red,(food_x,food_y,20,20))
+    for event in pygame.event.get():
+        if event.type== pygame.QUIT:
+            running=False
+        elif event.type==pygame.KEYDOWN:
+            if event.key==pygame.K_UP:
+                velocity_x=0
+                velocity_y=-speed
+            elif event.key==pygame.K_DOWN:
+                velocity_x=0
+                velocity_y=speed
+            elif event.key==pygame.K_LEFT:
+                velocity_x=-speed
+                velocity_y=0
+            elif event.key==pygame.K_RIGHT:
+                velocity_x=speed
+                velocity_y=0
+
+    snake_x+=velocity_x
+    snake_y+=velocity_y
+
+
+    #Prevents snake from moving out of bounds
+    if snake_x <0:
+        snake_x=0
+    elif snake_x > WIDTH-snake_size:
+        snake_x=WIDTH-snake_size
+
+    if snake_y <0:
+        snake_y=0
+    elif snake_y > HEIGHT-snake_size:
+        snake_y=HEIGHT-snake_size
+
+
+    pygame.display.update()
+    clock.tick(10)
+
+pygame.quit()
