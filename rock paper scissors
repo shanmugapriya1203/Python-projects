@@ -1,0 +1,32 @@
+import random
+
+choices=["rock","paper","scissors"]
+user_score=0
+computer_score=0
+
+
+print("Welcome to Rock,Paper,Scissors !")
+ # Rock or ROCK , ROck -> rock
+while True:
+    user=input("\n Choose rock,paper,or scissors (or type 'quit' to stop)").lower()
+    if user =="quit":
+        break
+    if user not in choices:
+        print("OOps ! Invalid Choice")
+        continue
+    computer= random.choice(choices)
+    print("Computer choice :",computer)
+
+    if user==computer:
+        print("Its a tie !")
+    elif (user == "rock" and computer=="scissors")  or ( user=="paper" and computer=="rock") or ( user=="scissors" and computer=="paper"):
+        print("You win this round")
+        user_score+=1
+    else:
+        print("Computer wins this round")
+        computer_score+=1
+    print(f"Sore : You {user_score} - Computer {computer_score}")
+
+
+print("\n Game over")
+
