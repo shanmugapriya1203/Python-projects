@@ -1,0 +1,40 @@
+# Custom error handling
+score=0
+try:
+    name=input("Whats your name")
+    if name=="":
+        raise ValueError("Name cannot be empty")
+    print("Hello",name)
+except ValueError as e:
+    print("Error:",e)
+    
+#Question :Math check
+try:
+    answer=int(input("What is 5 + 3"))
+    if answer !=8:
+        raise ValueError("Oops ! Thats not a correct answer")
+    print("Correct")
+    score+=1
+except ValueError as e:
+    print("Error : ",e)
+    
+try:
+    number=int(input("Pick a number divide 20 by :"))
+    result=20/ number
+    print("Great ! 20 divided by ",number , "is",result)
+    score+=1
+except ZeroDivisionError:
+    print("Error: You cant divide by zero")
+except ValueError:
+    print("Error: Please enter a number")
+    
+    
+print(f"\n Your total score is {score}")
+    
+    
+    
+    
+    
+    
+    
+    
