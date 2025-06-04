@@ -1,0 +1,79 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Screen Setup
+WIDTH, HEIGHT = 500, 500
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Catch the Falling Star")
+
+# 
+WHITE = (255, 255, 255)
+YELLOW = (255, 255, 0)
+BLUE = (0, 0, 255)
+
+# Bucket Setup
+bucket_x = 225
+bucket_y = 450
+bucket_width = 80
+bucket_height = 20
+bucket_speed =40 # Bucket speed
+
+# Star Setup
+star_x = random.randint(50, 450)
+star_y = 0
+star_radius = 15
+star_speed = 2  # Slower falling speed
+
+score = 0
+font = pygame.font.Font(None, 36)  # Score Font
+
+clock = pygame.time.Clock()
+
+# Game Loop
+running = True
+while running:
+    screen.fill(WHITE)
+
+    # Draw Bucket
+    pygame.draw.rect(screen, BLUE, (bucket_x, bucket_y, bucket_width, bucket_height))
+
+    # Draw Star
+    pygame.draw.circle(screen, YELLOW, (star_x, star_y), star_radius)
+
+    # Move Star
+    star_y += star_speed
+
+    # Check if Star is Caught
+    if star_y + star_radius >= bucket_y and bucket_x < star_x < bucket_x + bucket_width:
+        score += 1
+        star_x = random.randint(50, 450)
+        star_y = 0  # Reset star
+
+    # Check if Star Missed
+    if star_y > HEIGHT:
+        score -=1
+        star_x = random.randint(50, 450)
+        star_y = 0
+
+    # Show Score
+    score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+    screen.blit(score_text, (10, 10))
+
+    # Event Handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT and bucket_x > 0:
+                bucket_x -= bucket_speed
+            if event.key == pygame.K_RIGHT and bucket_x < WIDTH - bucket_width:
+                bucket_x += bucket_speed
+
+    pygame.display.update()
+    clock.tick(30)  # Slower game speed
+
+pygame.quit()
