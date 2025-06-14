@@ -1,0 +1,45 @@
+# Step 1: Mini Knowledge Base (like RAG data)
+data = [
+    "Elephants are the largest land animals.",
+    "The Sun is a star in the solar system.",
+    "Water freezes at 0 degrees Celsius.",
+    "The Earth has one moon.",
+    "Penguins cannot fly but they can swim."
+]
+
+# Step 2: Ask a quiz question
+print("Welcome to the Quiz Game!")
+
+# Step 3: Simulate retrieving a fact
+import random
+fact = random.choice(data)
+
+# Step 4: Create a question from fact
+if "Elephants" in fact:
+    question = "Which is the largest land animal?"
+    correct_answer = "elephant"
+elif "Sun" in fact:
+    question = "What is the Sun?"
+    correct_answer = "star"
+elif "Water" in fact:
+    question = "At what temperature does water freeze (in Celsius)?"
+    correct_answer = "0"
+elif "Earth" in fact:
+    question = "How many moons does Earth have?"
+    correct_answer = "1"
+elif "Penguins" in fact:
+    question = "Can penguins fly?"
+    correct_answer = "no"
+else:
+    question = "I don't know this one!"
+    correct_answer = ""
+
+# Step 5: Ask and check answer
+print("Question:", question)
+user_answer = input("Your answer: ").strip().lower()
+
+# Step 6: Analyze the answer
+if user_answer == correct_answer:
+    print("🎉 Yay! That's correct!")
+else:
+    print("❌ Oops! The correct answer is:", correct_answer)
