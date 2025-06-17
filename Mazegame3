@@ -1,0 +1,121 @@
+import turtle
+
+# Set up screen
+screen = turtle.Screen()
+screen.title("Simple maze game")
+screen.bgcolor("black")
+screen.setup(600, 600)
+screen.tracer(0)
+
+# Maze layout
+maze = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+    [1, 1, 1, 0, 0, 1, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 0, 2, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
+
+# Store wall positions
+walls = []
+
+# Create player turtle
+player = turtle.Turtle()
+player.shape("turtle")
+player.color("green")
+player.penup()
+player.speed(0)
+
+# Create goal turtle
+goal = turtle.Turtle()
+goal.shape("circle")
+goal.color("yellow")
+goal.penup()
+goal.speed(0)
+
+# Draw maze
+def draw_maze():
+    wall_drawer = turtle.Turtle()
+    wall_drawer.shape("square")
+    wall_drawer.color("blue")
+    wall_drawer.penup()
+    wall_drawer.speed(0)
+
+    for row in range(len(maze)):
+        for col in range(len(maze[row])):
+            screen_x = -200 + (col * 40)
+            screen_y = 200 - (row * 40)
+
+            if maze[row][col] == 1:
+                wall_drawer.goto(screen_x, screen_y)
+                wall_drawer.stamp()
+                walls.append((screen_x, screen_y))
+            elif maze[row][col] == 2:
+                goal.goto(screen_x, screen_y)
+
+# Starting position
+player.goto(-160, 160)
+
+# Win message
+def show_win_message():
+    win_turtle = turtle.Turtle()
+    win_turtle.hideturtle()
+    win_turtle.color("white")
+    win_turtle.penup()
+    win_turtle.goto(0, 0)
+    win_turtle.write("You Win The Game!", align="center", font=("Arial", 20, "bold"))
+
+# Goal check
+def check_goal():
+    if player.distance(goal) < 20:
+        player.color("red")
+        goal.color("yellow")
+        show_win_message()
+
+# Movement functions
+def move_up():
+    new_x = player.xcor()
+    new_y = player.ycor() + 40
+    if (new_x, new_y) not in walls:
+        player.goto(new_x, new_y)
+        check_goal()
+
+def move_down():
+    new_x = player.xcor()
+    new_y = player.ycor() - 40
+    if (new_x, new_y) not in walls:
+        player.goto(new_x, new_y)
+        check_goal()
+
+def move_left():
+    new_x = player.xcor() - 40
+    new_y = player.ycor()
+    if (new_x, new_y) not in walls:
+        player.goto(new_x, new_y)
+        check_goal()
+
+def move_right():
+    new_x = player.xcor() + 40
+    new_y = player.ycor()
+    if (new_x, new_y) not in walls:
+        player.goto(new_x, new_y)
+        check_goal()
+
+# Keyboard bindings
+screen.listen()
+screen.onkey(move_up, "Up")
+screen.onkey(move_down, "Down")
+screen.onkey(move_left, "Left")
+screen.onkey(move_right, "Right")
+
+# Draw the maze and start the game
+draw_maze()
+
+# Keep the window open
+while True:
+    screen.update()
