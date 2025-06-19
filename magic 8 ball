@@ -1,0 +1,67 @@
+import turtle
+import random
+import time
+
+# Set up the screen
+screen = turtle.Screen()
+screen.title("Magic 8 Ball")
+screen.bgcolor("black")
+screen.setup(width=600, height=600)
+
+# Draw the magic 8 ball
+ball = turtle.Turtle()
+ball.shape("circle")
+ball.color("darkblue")
+ball.shapesize(10)
+ball.penup()
+
+# Create the text turtle (for answer)
+text_turtle = turtle.Turtle()
+text_turtle.hideturtle()
+text_turtle.color("white")
+text_turtle.penup()
+text_turtle.goto(0, 150)
+
+# Create the "8" turtle
+eight_turtle = turtle.Turtle()
+eight_turtle.hideturtle()
+eight_turtle.color("white")
+eight_turtle.penup()
+eight_turtle.goto(0, -30)  # Center of the ball
+eight_turtle.write("8", align="center", font=("Arial", 60, "bold"))
+
+# List of Magic 8 Ball answers
+answers = [
+    "Yes", "No", "Ask again later", "Definitely!",
+    "I don't think so", "Maybe", "Absolutely", "Not sure",
+    "Try again", "Without a doubt", "Very likely", "Unclear"
+]
+
+# Function to show the final answer
+def show_answer():
+    text_turtle.clear()
+    answer = random.choice(answers)
+    text_turtle.write(answer, align="center", font=("Arial", 18, "bold"))
+
+# Function to shake the ball
+def shake_motion(steps=6):
+    original_x = ball.xcor()
+    for i in range(steps):
+        shift = 10 if i % 2 == 0 else -10
+        ball.setx(original_x + shift)
+        screen.update()
+        time.sleep(0.05)
+    ball.setx(original_x)
+
+# Function when user clicks the ball
+def shake_magic_ball(x, y):
+    text_turtle.clear()
+    text_turtle.write("Shaking...", align="center", font=("Arial", 18, "italic"))
+    shake_motion()
+    screen.ontimer(show_answer, 1000)  # Show answer after 1 second
+
+# Bind the click event
+screen.onclick(shake_magic_ball)
+
+# Keep the window open
+turtle.done()
