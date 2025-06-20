@@ -1,0 +1,57 @@
+# -------------------------------
+# RAG-based Quiz Generator (Simple Version)
+# -------------------------------
+
+# Step 1: Learning content (like a mini knowledge base)
+documents = [
+    "The Sun is the closest star to Earth.",
+    "It provides light and heat.",
+    "The Sun is very large and made of hot gases.",
+    "Plants use sunlight to make food through photosynthesis.",
+    "The Moon reflects sunlight and appears bright at night.",
+    "Mars is called the Red Planet because of its color."
+]
+
+# Step 2: Retrieval - Search sentences related to a topic
+def retrieve_info(topic, docs):
+    return [doc for doc in docs if topic.lower() in doc.lower()]
+
+# Step 3: Generation - Generate question from sentence
+def generate_question(info):
+    if "sun" in info.lower():
+        return "What is the Sun?"
+    elif "light and heat" in info.lower():
+        return "What does the Sun provide?"
+    elif "gases" in info.lower():
+        return "What is the Sun made of?"
+    elif "photosynthesis" in info.lower():
+        return "How do plants use sunlight?"
+    elif "moon" in info.lower():
+        return "Why does the Moon shine?"
+    elif "mars" in info.lower():
+        return "Why is Mars called the Red Planet?"
+    else:
+        return "What did you learn from this sentence?"
+
+# Step 4: Combine Retrieval and Generation
+def quiz_maker(topic):
+    print(f"\n📘 Topic: {topic}")
+    info_list = retrieve_info(topic, documents)
+    
+    if not info_list:
+        print("❌ No information found for this topic.")
+        return
+    
+    for info in info_list:
+        question = generate_question(info)
+        print("\n📚 Info:", info)
+        print("❓ Question:", question)
+
+# Step 5: Run it
+while True:
+    user_topic = input("\n🔎 Enter a topic (like sun, moon, mars) or 'exit' to stop: ")
+    if user_topic.lower() == "exit":
+        print("👋 Goodbye!")
+        break
+    quiz_maker(user_topic)
+
