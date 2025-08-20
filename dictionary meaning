@@ -1,0 +1,44 @@
+
+mini_dict = {
+    "python": "A high-level programming language.",
+    "java": "A popular programming language used for web and mobile apps.",
+    "html": "Standard markup language for creating web pages.",
+    "css": "A style sheet language used for describing the look of a web page.",
+    "ai": "Field of study that makes computers simulate human intelligence."
+}
+
+while True:
+  
+    
+    print("\nMini Dictionary Menu")
+    print("1. Search Meaning")
+    print("2. Add New Word")
+    print("3. Show All Words")
+    print("4. Exit")
+
+    choice = input("Enter your choice: ")
+
+    if choice == "1":
+        word = input("Enter word to search: ").lower()
+        if word in mini_dict:
+            print(f" The word is {word} and meaning is{mini_dict[word]}")
+        else:
+            print("Word not found in dictionary.")
+
+    elif choice == "2":
+        word = input("Enter new word: ").lower()
+        meaning = input("Enter its meaning: ")
+        mini_dict[word] = meaning
+        print(f"'{word}' has been added to the dictionary.")
+
+    elif choice == "3":
+        print("\n--- Mini Dictionary Words ---")
+        for key, value in mini_dict.items():
+            print(f"{key} : {value}")
+
+    elif choice == "4":
+        print("Exiting... Thank you for using Mini Dictionary!")
+        break
+
+    else:
+        print("Invalid choice! Try again.")
