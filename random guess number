@@ -1,0 +1,98 @@
+1 — Explain the game flow aloud (1–2 minutes)
+Walk students through the expected interaction:
+Program picks a secret digit (0–9).
+Player types a single digit and presses (or it registers immediately).
+Program compares the typed digit with the secret.
+Program displays feedback: “Too low”, “Too high”, or “Correct”.
+If correct: show attempts used and offer restart.
+
+2 — Pseudocode on the board (3–5 minutes)
+Write simple steps (no code) so students see the logic:
+Start program → choose secret digit randomly.
+Show input box and message: “Guess a number 0–9”.
+When user presses a key:
+If Backspace → clear
+If digit → set guess = digit
+Compare guess to secret
+If guess < secret: show “Too low”
+If guess > secret: show “Too high”
+
+If guess == secret: show “Correct — you used X tries”
+
+Increase attempt count each time a non-empty guess is checked.
+
+Option to restart (set a new secret and reset attempts).
+
+3 — Build small parts in sequence (hands-on)
+
+Break coding into tiny deliverables. Test each before moving on.
+
+Part A — Secret number generation (teacher demo)
+
+Explain random.randint(0,9) conceptually (pick one number).
+
+Show where to store secret (variable secret).
+
+Part B — Show input box & read a single digit (student task)
+
+Reuse the single-digit input box code they already learned.
+
+When user types 0–9, store it as guess (replace old value).
+
+Part C — Compare and give feedback (student task)
+
+After receiving guess:
+
+If guess is less than secret → display “Too low”
+
+If greater → “Too high”
+
+If equal → “Correct!”
+
+Make sure the feedback appears on screen clearly.
+
+Part D — Count attempts
+
+Add a variable attempts = 0.
+
+When a guess is made (and is not empty), do attempts += 1.
+
+
+
+import pygame
+pygame.init()
+
+screen = pygame.display.set_mode((500, 200))
+pygame.display.set_caption("Simple Input")
+
+font = pygame.font.Font(None, 40)
+text = ""   # stores typed text
+
+running = True
+while running:
+    screen.fill((255, 255, 255))  # white background
+
+    # Show message
+    msg = font.render("Type something:", True, (0, 0, 0))
+    screen.blit(msg, (20, 20))
+
+    # Show what user typed
+    typed = font.render(text, True, (0, 0, 200))
+    screen.blit(typed, (20, 80))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                text = text[:-1]  # delete last char
+            else:
+                text += event.unicode  # add typed char
+
+    pygame.display.update()
+
+pygame.quit()
+
+
+When correct, display the attempts count with the success message.
