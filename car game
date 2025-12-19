@@ -1,0 +1,165 @@
+import pygame
+pygame.init()
+WIDTH, HEIGHT = 600, 400
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Move the Car - Traffic Signs")
+
+# Colors
+WHITE = (255, 255, 255)
+RED = (200, 0, 0)
+BLACK = (0, 0, 0)
+GRAY = (160, 160, 160)
+YELLOW = (255, 255, 0)
+DARK_GRAY = (80, 80, 80)
+BLUE = (0, 100, 200)
+
+# Car details
+car_x = 270
+car_y = 300
+car_width = 60
+car_height = 120
+speed = 5
+
+# Road details
+road_width = 300
+road_x = (WIDTH - road_width) // 2  # Center the road
+
+clock = pygame.time.Clock()
+running = True
+
+def draw_stop_sign(x, y):
+    """Draw a stop sign (red octagon with white border)"""
+    # Sign pole (gray rectangle)
+    pygame.draw.rect(screen, GRAY, (x + 15, y + 40, 10, 60))
+
+    # Octagon shape (simplified as a square with cut corners)
+    sign_size = 40
+    # Main red square
+    pygame.draw.rect(screen, RED, (x, y, sign_size, sign_size))
+
+    # White border
+    pygame.draw.rect(screen, WHITE, (x, y, sign_size, sign_size), 3)
+
+    # STOP text (simplified as white rectangle bars)
+    pygame.draw.rect(screen, WHITE, (x + 8, y + 12, 24, 4))  # S
+    pygame.draw.rect(screen, WHITE, (x + 8, y + 18, 24, 4))  # T
+    pygame.draw.rect(screen, WHITE, (x + 8, y + 24, 24, 4))  # O
+
+def draw_speed_limit_sign(x, y, speed_text):
+    """Draw a speed limit sign"""
+    # Sign pole (gray rectangle)
+    pygame.draw.rect(screen, GRAY, (x + 12, y + 50, 8, 50))
+
+    # White rectangle sign
+    pygame.draw.rect(screen, WHITE, (x, y, 35, 50))
+    # Black border
+    pygame.draw.rect(screen, BLACK, (x, y, 35, 50), 2)
+
+    # "SPEED LIMIT" text area (black bar at top)
+    pygame.draw.rect(screen, BLACK, (x + 2, y + 2, 31, 12))
+
+    # Speed number background (white)
+    pygame.draw.rect(screen, WHITE, (x + 2, y + 16, 31, 30))
+
+    # Speed number (large black text - simplified as shapes)
+    # Drawing number as blocks
+    font = pygame.font.Font(None, 28)
+    text = font.render(speed_text, True, BLACK)
+    screen.blit(text, (x + 7, y + 20))
+
+def draw_arrow_sign(x, y):
+    """Draw a directional arrow sign (forward arrow)"""
+    # Sign pole (gray rectangle)
+    pygame.draw.rect(screen, GRAY, (x + 15, y + 45, 8, 55))
+
+    # Blue square sign background
+    pygame.draw.rect(screen, BLUE, (x, y, 40, 45))
+    # White border
+    pygame.draw.rect(screen, WHITE, (x, y, 40, 45), 2)
+
+    # White arrow pointing up (simplified)
+    # Arrow shaft
+    pygame.draw.rect(screen, WHITE, (x + 15, y + 15, 10, 20))
+    # Arrow head (triangle made with polygon)
+    arrow_points = [
+        (x + 20, y + 10),  # Top point
+        (x + 10, y + 18),  # Left point
+        (x + 30, y + 18)   # Right point
+    ]
+    pygame.draw.polygon(screen, WHITE, arrow_points)
+
+def draw_road():
+    """Draw the road with lane markings"""
+    # Draw main road (gray background)
+    pygame.draw.rect(screen, DARK_GRAY, (road_x, 0, road_width, HEIGHT))
+
+    # Draw road edges (white lines)
+    pygame.draw.rect(screen, WHITE, (road_x, 0, 5, HEIGHT))  # Left edge
+    pygame.draw.rect(screen, WHITE, (road_x + road_width - 5, 0, 5, HEIGHT))  # Right edge
+
+    # Draw center dashed lines (yellow)
+    dash_width = 10
+    dash_height = 40
+    gap = 30
+    center_x = WIDTH // 2 - dash_width // 2
+
+    for y in range(0, HEIGHT, dash_height + gap):
+        pygame.draw.rect(screen, YELLOW, (center_x, y, dash_width, dash_height))
+
+def draw_car(x, y):
+    """Draw the player's car"""
+    # Body
+    pygame.draw.rect(screen, RED, (x, y, car_width, car_height))
+    # Windows
+    pygame.draw.rect(screen, GRAY, (x + 10, y + 10, car_width - 20, 40))
+    # Wheels
+    pygame.draw.rect(screen, BLACK, (x - 5, y + 20, 15, 40))
+    pygame.draw.rect(screen, BLACK, (x + car_width - 10, y + 20, 15, 40))
+    pygame.draw.rect(screen, BLACK, (x - 5, y + car_height - 60, 15, 40))
+    pygame.draw.rect(screen, BLACK, (x + car_width - 10, y + car_height - 60, 15, 40))
+
+# Main game loop
+while running:
+    screen.fill((34, 139, 34))  # Green grass background
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    keys = pygame.key.get_pressed()
+
+    # Movement
+    if keys[pygame.K_LEFT]:
+        car_x -= speed
+    if keys[pygame.K_RIGHT]:
+        car_x += speed
+    if keys[pygame.K_UP]:
+        car_y -= speed
+    if keys[pygame.K_DOWN]:
+        car_y += speed
+
+    # Stay inside road limits
+    if car_x < road_x + 10:
+        car_x = road_x + 10
+    if car_x > road_x + road_width - car_width - 10:
+        car_x = road_x + road_width - car_width - 10
+    if car_y < 0:
+        car_y = 0
+    if car_y > HEIGHT - car_height - 10:
+        car_y = HEIGHT - car_height - 10
+
+    # Draw everything in order (back to front)
+    draw_road()
+
+    # Draw traffic signs on the roadside
+    draw_stop_sign(30, 50)           # Left side, top
+    draw_speed_limit_sign(520, 150, "50")  # Right side, middle
+    draw_arrow_sign(35, 250)         # Left side, bottom
+    draw_speed_limit_sign(520, 10, "30")   # Right side, top
+
+    draw_car(car_x, car_y)
+
+    pygame.display.update()
+    clock.tick(60)
+
+pygame.quit()
