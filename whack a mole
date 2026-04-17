@@ -1,0 +1,294 @@
+import pygame
+import random
+import time
+
+# Initialize pygame
+pygame.init()
+
+# Screen settings
+WIDTH = 600
+HEIGHT = 650
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Whack-a-Mole!")
+
+# Colors
+WHITE      = (255, 255, 255)
+BLACK      = (0, 0, 0)
+GREEN      = (34, 139, 34)
+DARK_GREEN = (0, 100, 0)
+BROWN      = (101, 67, 33)
+DARK_BROWN = (70, 40, 10)
+RED        = (220, 50, 50)
+YELLOW     = (255, 220, 0)
+PINK       = (255, 182, 193)
+GRAY       = (150, 150, 150)
+ORANGE     = (255, 140, 0)
+SKY_BLUE   = (135, 206, 235)
+
+# Fonts
+big_font    = pygame.font.SysFont("Arial", 52, bold=True)
+medium_font = pygame.font.SysFont("Arial", 34, bold=True)
+small_font  = pygame.font.SysFont("Arial", 26)
+
+# Clock
+clock = pygame.time.Clock()
+
+# Hole positions (3x3 grid)
+HOLES = [
+    (150, 220), (300, 220), (450, 220),
+    (150, 360), (300, 360), (450, 360),
+    (150, 500), (300, 500), (450, 500),
+]
+
+HOLE_RX = 48  # hole ellipse x-radius
+HOLE_RY = 18  # hole ellipse y-radius
+
+# Mole settings
+MOLE_W = 56
+MOLE_H = 60
+
+# ---------------------------------------------------------------------------
+# Drawing helpers
+# ---------------------------------------------------------------------------
+
+def draw_background():
+    screen.fill(SKY_BLUE)
+    # Grass panel
+    pygame.draw.rect(screen, GREEN, (0, 150, WIDTH, HEIGHT - 150))
+    # Title bar
+    pygame.draw.rect(screen, DARK_GREEN, (0, 0, WIDTH, 150))
+    title = big_font.render("Whack-a-Mole!", True, YELLOW)
+    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 45))
+
+
+def draw_hole(cx, cy):
+    # Shadow
+    pygame.draw.ellipse(screen, DARK_BROWN,
+                        (cx - HOLE_RX - 4, cy - HOLE_RY - 2,
+                         (HOLE_RX + 4) * 2, (HOLE_RY + 2) * 2))
+    # Hole
+    pygame.draw.ellipse(screen, BLACK,
+                        (cx - HOLE_RX, cy - HOLE_RY,
+                         HOLE_RX * 2, HOLE_RY * 2))
+
+
+def draw_mole(cx, cy, whacked=False):
+    # Body (brown circle)
+    body_color = DARK_BROWN if whacked else BROWN
+    pygame.draw.circle(screen, body_color, (cx, cy - 18), 28)
+    # Face
+    face_color = GRAY if whacked else PINK
+    pygame.draw.circle(screen, face_color, (cx, cy - 22), 18)
+    if not whacked:
+        # Eyes
+        pygame.draw.circle(screen, BLACK, (cx - 7, cy - 26), 4)
+        pygame.draw.circle(screen, BLACK, (cx + 7, cy - 26), 4)
+        # Eye shine
+        pygame.draw.circle(screen, WHITE, (cx - 6, cy - 27), 2)
+        pygame.draw.circle(screen, WHITE, (cx + 8, cy - 27), 2)
+        # Nose
+        pygame.draw.circle(screen, RED, (cx, cy - 20), 4)
+        # Mouth (smile)
+        pygame.draw.arc(screen, BLACK,
+                        (cx - 8, cy - 18, 16, 10),
+                        3.14, 0, 2)
+        # Ears
+        pygame.draw.circle(screen, BROWN, (cx - 22, cy - 36), 8)
+        pygame.draw.circle(screen, PINK,  (cx - 22, cy - 36), 4)
+        pygame.draw.circle(screen, BROWN, (cx + 22, cy - 36), 8)
+        pygame.draw.circle(screen, PINK,  (cx + 22, cy - 36), 4)
+    else:
+        # X eyes when whacked
+        for dx in [-7, 7]:
+            pygame.draw.line(screen, BLACK, (cx + dx - 3, cy - 29), (cx + dx + 3, cy - 23), 3)
+            pygame.draw.line(screen, BLACK, (cx + dx + 3, cy - 29), (cx + dx - 3, cy - 23), 3)
+    # Overlap hole edge (grass cover)
+    pygame.draw.ellipse(screen, GREEN,
+                        (cx - HOLE_RX - 2, cy - HOLE_RY + 6,
+                         (HOLE_RX + 2) * 2, (HOLE_RY + 4) * 2))
+
+
+def draw_hud(score, time_left, misses):
+    # Score
+    score_text = medium_font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_text, (20, 108))
+    # Timer
+    timer_text = medium_font.render(f"Time: {time_left}s", True, YELLOW)
+    screen.blit(timer_text, (WIDTH // 2 - timer_text.get_width() // 2, 108))
+    # Misses
+    miss_text = medium_font.render(f"Misses: {misses}", True, RED)
+    screen.blit(miss_text, (WIDTH - miss_text.get_width() - 20, 108))
+
+
+def draw_hammer(pos, swinging):
+    mx, my = pos
+    color = DARK_BROWN if swinging else BROWN
+    # Handle
+    pygame.draw.line(screen, color, (mx, my), (mx + 14, my + 30), 6)
+    # Head
+    pygame.draw.rect(screen, ORANGE if swinging else GRAY,
+                     (mx - 12, my - 20, 28, 18), border_radius=4)
+
+
+def game_over_screen(score, misses):
+    screen.fill(DARK_GREEN)
+    title = big_font.render("Game Over!", True, YELLOW)
+    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 160))
+    s = medium_font.render(f"Final Score: {score}", True, WHITE)
+    screen.blit(s, (WIDTH // 2 - s.get_width() // 2, 260))
+    m = medium_font.render(f"Misses: {misses}", True, RED)
+    screen.blit(m, (WIDTH // 2 - m.get_width() // 2, 320))
+
+    grade = "Excellent! 🏆" if score >= 10 else "Good Job! 👍" if score >= 5 else "Keep Trying! 💪"
+    g = medium_font.render(grade, True, ORANGE)
+    screen.blit(g, (WIDTH // 2 - g.get_width() // 2, 390))
+
+    restart = small_font.render("Press R to Restart  |  Q to Quit", True, WHITE)
+    screen.blit(restart, (WIDTH // 2 - restart.get_width() // 2, 480))
+    pygame.display.flip()
+
+
+def start_screen():
+    screen.fill(DARK_GREEN)
+    title = big_font.render("Whack-a-Mole!", True, YELLOW)
+    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 160))
+    info1 = small_font.render("Click on the moles before they hide!", True, WHITE)
+    screen.blit(info1, (WIDTH // 2 - info1.get_width() // 2, 280))
+    info2 = small_font.render("You have 30 seconds. Good luck!", True, WHITE)
+    screen.blit(info2, (WIDTH // 2 - info2.get_width() // 2, 330))
+    start = medium_font.render("Press SPACE to Start", True, ORANGE)
+    screen.blit(start, (WIDTH // 2 - start.get_width() // 2, 430))
+    pygame.display.flip()
+
+
+# ---------------------------------------------------------------------------
+# Main game
+# ---------------------------------------------------------------------------
+
+def run_game():
+    score       = 0
+    misses      = 0
+    start_time  = time.time()
+    game_duration = 30  # seconds
+
+    # Mole state
+    active_hole   = random.randint(0, 8)
+    mole_timer    = 0
+    mole_interval = 1.4   # seconds mole stays up
+    whacked_hole  = -1
+    whack_timer   = 0
+
+    swinging      = False
+    swing_timer   = 0
+    mouse_pos     = (0, 0)
+
+    running = True
+    while running:
+        dt = clock.tick(60) / 1000.0
+        mouse_pos = pygame.mouse.get_pos()
+        time_left = max(0, int(game_duration - (time.time() - start_time)))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "quit"
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                swinging    = True
+                swing_timer = 0.15
+                mx, my = event.pos
+                hit = False
+                if whacked_hole == -1:   # only if mole not already whacked
+                    hx, hy = HOLES[active_hole]
+                    # Check click within mole body area
+                    if abs(mx - hx) < 32 and abs(my - (hy - 18)) < 36:
+                        score += 1
+                        whacked_hole = active_hole
+                        whack_timer  = 0.4
+                        hit = True
+                if not hit:
+                    misses += 1
+
+        # Swing animation
+        if swinging:
+            swing_timer -= dt
+            if swing_timer <= 0:
+                swinging = False
+
+        # Whack display timer
+        if whacked_hole != -1:
+            whack_timer -= dt
+            if whack_timer <= 0:
+                whacked_hole  = -1
+                active_hole   = random.randint(0, 8)
+                mole_timer    = 0
+
+        # Mole hide timer (only if not whacked)
+        if whacked_hole == -1:
+            mole_timer += dt
+            if mole_timer >= mole_interval:
+                active_hole   = random.randint(0, 8)
+                mole_timer    = 0
+                # Speed up over time
+                mole_interval = max(0.6, 1.4 - (game_duration - time_left) * 0.02)
+
+        # Draw
+        draw_background()
+        for i, (hx, hy) in enumerate(HOLES):
+            draw_hole(hx, hy)
+            if i == whacked_hole:
+                draw_mole(hx, hy, whacked=True)
+            elif i == active_hole and whacked_hole == -1:
+                draw_mole(hx, hy, whacked=False)
+
+        draw_hud(score, time_left, misses)
+        draw_hammer(mouse_pos, swinging)
+        pygame.display.flip()
+
+        if time_left == 0:
+            return score, misses
+
+    return score, misses
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+def main():
+    # Start screen
+    start_screen()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                waiting = False
+
+    while True:
+        result = run_game()
+        if result == "quit":
+            break
+        score, misses = result
+        game_over_screen(score, misses)
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    waiting = False
+                    result  = "quit"
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        waiting = False
+                    if event.key == pygame.K_q:
+                        waiting = False
+                        result  = "quit"
+            clock.tick(30)
+        if result == "quit":
+            break
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
